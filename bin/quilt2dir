@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import argparse
+from pathlib import Path, PurePath
+
+quilt_series_cmd = ['quilt', 'series']
+quilt_top_cmd = ['quilt', 'top']
+patch2dir_cmd = ['patch2dir', '-d']
+patch2dir_top_arg = '-t'
+
+parser = argparse.ArgumentParser(
+    description='expand quilt series to before and after directories')
+parser.add_argument('-d', '--dst', required=True, help='destination directory')
+args = parser.parse_args()
+
+cwd = os.getcwd()
+while not Path(cwd + '/patches/series').exists():
+    cwd = str(PurePath(cwd).parents[0])
+    os.chdir(cwd)
+
+patches = subprocess.check_output(quilt_series_cmd,
+                                  universal_newlines=True).split()
+try:
+    top_patch = subprocess.check_output(quilt_top_cmd,
+                                        universal_newlines=True).strip()
+except subprocess.CalledProcessError:
+    top_patch = None
+
+patch2dir_cmd.append(args.dst)
+
+for patch in patches:
+    patch2dir_cmd.append('patches/' + patch)
+    if patch == top_patch:
+        patch2dir_cmd.append(patch2dir_top_arg)
+
+subprocess.check_call(patch2dir_cmd)
