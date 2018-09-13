@@ -5,6 +5,7 @@ import subprocess
 import argparse
 from pathlib import Path, PurePath
 
+ls_cmd = ['ls', '-1v']
 quilt_series_cmd = ['quilt', 'series']
 quilt_top_cmd = ['quilt', 'top']
 patch2dir_cmd = ['patch2dir', '-d']
@@ -13,6 +14,8 @@ patch2dir_top_arg = '-t'
 parser = argparse.ArgumentParser(
     description='expand quilt series to before and after directories')
 parser.add_argument('-d', '--dst', required=True, help='destination directory')
+parser.add_argument('-s', '--series', required=False, default='patches',
+		help='series directory')
 args = parser.parse_args()
 
 cwd = os.getcwd()
@@ -20,8 +23,15 @@ while not Path(cwd + '/patches/series').exists():
     cwd = str(PurePath(cwd).parents[0])
     os.chdir(cwd)
 
+ls_cmd.append('patches/' + args.series)
+files = subprocess.check_output(ls_cmd, universal_newlines=True).split()
+with open('patches/series', 'w') as series_file:
+	for f in files:
+		series_file.write(f + "\n")
 patches = subprocess.check_output(quilt_series_cmd,
                                   universal_newlines=True).split()
+patches = [ p.split('/')[-1] for p in patches ]
+print(patches)
 try:
     top_patch = subprocess.check_output(quilt_top_cmd,
                                         universal_newlines=True).strip()
@@ -31,7 +41,7 @@ except subprocess.CalledProcessError:
 patch2dir_cmd.append(args.dst)
 
 for patch in patches:
-    patch2dir_cmd.append('patches/' + patch)
+    patch2dir_cmd.append('patches/' + args.series + '/' + patch)
     if patch == top_patch:
         patch2dir_cmd.append(patch2dir_top_arg)
 

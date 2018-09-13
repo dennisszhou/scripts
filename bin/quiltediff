@@ -2,7 +2,7 @@
 
 set -e
 DIR=$(mktemp -d /tmp/d-XXX)
-quilt2dir -d $DIR
+quilt2dir -d $DIR $@
 #emacs --eval "(ediff-directories \"$DIR/a\" \"$DIR/b\" \"\")"
 vim -c "DirDiff $DIR/a $DIR/b"
 rm -rf $DIR

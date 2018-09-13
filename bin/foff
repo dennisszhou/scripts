@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+use strict;
+
+use bignum qw/hex/;
+
+my ($func, $off) = split /\+/, $ARGV[0];
+
+my $gdb = qx{gdb vmlinux -batch -ex "info addr $func"};
+
+my @addr = split(/\n/, $gdb);
+
+if ($addr[-1] =~ /.*(0x.*)\./) {
+	my $func_off = hex $1;
+	$off = hex $off;
+
+	$func_off += $off;
+	$func_off = sprintf("%X", $func_off);
+
+	print qx{addr2line -e vmlinux $func_off};
+}
