@@ -19,9 +19,9 @@ parser.add_argument('-s', '--series', required=False, default='patches',
 args = parser.parse_args()
 
 cwd = os.getcwd()
-while not Path(cwd + '/patches/series').exists():
-    cwd = str(PurePath(cwd).parents[0])
-    os.chdir(cwd)
+#while not Path(cwd + '/patches/series').exists():
+#    cwd = str(PurePath(cwd).parents[0])
+#    os.chdir(cwd)
 
 ls_cmd.append('patches/' + args.series)
 files = subprocess.check_output(ls_cmd, universal_newlines=True).split()
