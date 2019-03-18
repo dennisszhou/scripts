@@ -1,0 +1,5 @@
+#!/bin/sh
+# See https://fburl.com/DevInternetProxy
+_proxy=fwdproxy
+_proxyport=1080
+exec socat -6 STDIO SOCKS4:$_proxy:$1:$2,socksport=$_proxyport
