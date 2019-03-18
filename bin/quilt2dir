@@ -14,7 +14,7 @@ patch2dir_top_arg = '-t'
 parser = argparse.ArgumentParser(
     description='expand quilt series to before and after directories')
 parser.add_argument('-d', '--dst', required=True, help='destination directory')
-parser.add_argument('-s', '--series', required=False, default='patches',
+parser.add_argument('-s', '--series', required=True, default='patches',
 		help='series directory')
 args = parser.parse_args()
 
