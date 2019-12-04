@@ -3,11 +3,12 @@
 REPO=$1
 shift;
 
-FS_IMG=/home/dennisz/local/fs-img/test.img
-NET_ROM=/home/dennisz/local/qemu-3.0.0/pc-bios/efi-e1000.rom
-DEV_IMG=/home/dennisz/local/fs-img/drives
+WORKSPACE=/home/dennisz/local
+FS_IMG=$WORKSPACE/fs-img/test.img
+NET_ROM=$WORKSPACE/qemu-3.0.0/pc-bios/efi-e1000.rom
+DEV_IMG=$WORKSPACE/fs-img/drives
 
-exec qemu-kvm -m 8192 -cpu host "$@" -smp 4 \
+exec qemu-kvm -m 8192 -cpu host "$@" -smp 1 \
 	--nographic -s -enable-kvm -usb \
 	-kernel /home/dennisz/local/$REPO/arch/x86/boot/bzImage \
 	-device e1000,netdev=net0,romfile=$NET_ROM \
