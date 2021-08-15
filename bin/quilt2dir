@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
-import os
-import subprocess
 import argparse
+import os
 from pathlib import Path, PurePath
+import shutil
+import subprocess
 
 ls_cmd = ['ls', '-1v']
 quilt_series_cmd = ['quilt', 'series']
@@ -12,10 +13,10 @@ patch2dir_cmd = ['patch2dir', '-d']
 patch2dir_top_arg = '-t'
 
 parser = argparse.ArgumentParser(
-    description='expand quilt series to before and after directories')
+        description='expand quilt series to before and after directories')
 parser.add_argument('-d', '--dst', required=True, help='destination directory')
 parser.add_argument('-s', '--series', required=True, default='patches',
-		help='series directory')
+                    help='series directory')
 args = parser.parse_args()
 
 cwd = os.getcwd()
@@ -23,11 +24,18 @@ cwd = os.getcwd()
 #    cwd = str(PurePath(cwd).parents[0])
 #    os.chdir(cwd)
 
-ls_cmd.append('patches/' + args.series)
-files = subprocess.check_output(ls_cmd, universal_newlines=True).split()
-with open('patches/series', 'w') as series_file:
-	for f in files:
-		series_file.write(f + "\n")
+# If series file exists, use it, otherwise generate one.
+series_file = 'patches/series'
+review_series_file = 'patches/{}/series'.format(args.series)
+if (os.path.exists(review_series_file)):
+    shutil.copyfile(review_series_file, series_file)
+else:
+    ls_cmd.append('patches/{}'.format(args.series))
+    files = subprocess.check_output(ls_cmd, universal_newlines=True).split()
+    with open('patches/series', 'w') as series_file:
+        for f in files:
+            series_file.write(f + "\n")
+
 patches = subprocess.check_output(quilt_series_cmd,
                                   universal_newlines=True).split()
 patches = [ p.split('/')[-1] for p in patches ]
